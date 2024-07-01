@@ -1,0 +1,1 @@
+"0","knitr::opts_chunk$set(  warning=FALSE, message=FALSE, tidy=TRUE,	tidy.opts=list(arrow=TRUE,	indent=2),fig.width = 6, fig.align = 'center', fig.asp=0.618, out.width = '100%')"

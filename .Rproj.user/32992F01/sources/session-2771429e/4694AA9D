@@ -1,0 +1,26 @@
+{
+    "id": "4694AA9D",
+    "path": "D:/Romario/Programar/Ferramentas/R/Projetos/Datasets/kaggle_credit_risk_customers/credit_risk_app/app.R",
+    "project_path": "credit_risk_app/app.R",
+    "type": "r_source",
+    "hash": "2329623726",
+    "contents": "",
+    "dirty": true,
+    "created": 1719775495094.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "28,8",
+        "scrollLine": "19"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1719795355,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1719795355810,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,2 @@
+"0","ggplot(dados) +"
+"0","  geom_point(aes(age,credit_amount))"

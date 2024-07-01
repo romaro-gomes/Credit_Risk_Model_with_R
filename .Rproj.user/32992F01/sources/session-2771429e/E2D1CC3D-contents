@@ -1,0 +1,67 @@
+library(tidyverse)
+library(here)
+
+
+dados=read_csv(here('data/credit_customers.csv'))
+
+dados |> head()
+
+dados |> glimpse()
+dados |> summary()
+
+numericos=dados |> select_if(is.numeric)
+
+numericos
+
+for(col in seq(colnames(numericos))) {
+  g=  ggplot(numericos,aes(x=numericos[[col]])) +
+  geom_histogram() +
+  labs(x=colnames(numericos[col]),y='frequency')
+  print(g)
+  }
+
+categoricos=dados |> select_if(is.character) 
+
+
+
+for(col in seq(colnames(categoricos))) {
+  g=  ggplot(categoricos) +
+    geom_bar(aes(x=categoricos[[col]], fill=categoricos[[col]])) +
+    labs(x=colnames(categoricos[col]),y='frequency',fill=colnames(categoricos[col]))
+    
+  print(g)
+}
+##-------------------------------------------------------
+for(col in colnames(categoricos)) {
+ dados[[col]] =as.factor(dados[[col]])
+ }
+
+##--------------------------------------
+for(col in seq(colnames(categoricos))) {
+  print(
+    table(dados[[col]],dados$class)
+  )
+}
+
+with(dados, table(foreign_worker,class))
+
+#------------------------------------------------------
+for(col in seq(colnames(categoricos))) {
+  g=  ggplot(categoricos) +
+    geom_bar(aes(x=categoricos[[col]], fill=categoricos$class),position ='dodge2') +
+    labs(x=colnames(categoricos[col]),y='frequency',fill=categoricos$class)
+  
+  print(g)
+}
+
+ggplot(dados) +
+  geom_bar(aes(x=foreign_worker, fill=class) )
+
+with(dados, table(credit_history,class))
+
+#-------------------------------------
+hist(log(dados$credit_amount))
+dados$existing_credits
+
+#-----------------------------------------------
+dados[numericos]

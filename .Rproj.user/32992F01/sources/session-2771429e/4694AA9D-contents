@@ -1,0 +1,233 @@
+library(here)
+library(tidyverse)
+library(tidymodels)
+library(shinydashboard)
+library(shiny)
+library(shinythemes)
+library(knitr)
+library(glue)
+
+data=read_csv(file=here('data/credit_customers.csv'))
+model=readRDS(file=here('modelo/modelo_final'))
+
+categoricos=data |> select_if(is.character) |> colnames()
+for(col in categoricos) {
+    data[[col]] =as.factor(data[[col]])
+}
+
+data_shiny = subset(head(data,0), select = -c(class))
+
+#pred= predict(model,data[1,],type = 'prob')  
+#pred$.pred_bad
+#print(glue('Bad:{pred$.pred_bad * 100}% - Good: {pred$.pred_good*100}%'))
+
+ui <- dashboardPage(
+    dashboardHeader(title ="Credit Risk Model"),
+    dashboardSidebar(disable=TRUE),
+    
+    dashboardBody(
+        
+            
+        
+        fluidRow(
+            column(width= 5,offset = 1,
+                   selectInput(
+                       "checking_status",
+                       label = "Checking Status",
+                       choices =levels(data$checking_status),
+                       multiple = FALSE,
+                       selected =levels(data$checking_status)[1] 
+                   ),
+                   
+                   selectInput(
+                       "job",
+                       label = "Job",
+                       choices =levels(data$job),
+                       multiple = FALSE,
+                       selected = levels(data$job)[1]
+                   ),
+                   
+                   selectInput(
+                       "credit_history",
+                       label = "Credit History",
+                       choices = levels(data$credit_history) |> sort(),
+                       selected = levels(data$credit_history)[1]
+                   ),
+                   
+                   selectInput(
+                       "savings_status",
+                       label = "Savings Status",
+                       choices =levels(data$savings_status),
+                       multiple = FALSE,
+                       selected =levels(data$savings_status)[1] 
+                   ),
+                   selectInput(
+                       "employment",
+                       label = "Employment",
+                       choices =levels(data$employment),
+                       multiple = FALSE,
+                       selected =levels(data$employment)[1] 
+                   ),
+                   selectInput(
+                       "other_parties",
+                       label = "Other Parties ",
+                       choices =levels(data$other_parties),
+                       multiple = FALSE,
+                       selected =levels(data$other_parties)[1] 
+                   ),
+                   selectInput(
+                       "property_magnitude",
+                       label = "Property Magnitude",
+                       choices =levels(data$property_magnitude),
+                       multiple = FALSE,
+                       selected =levels(data$property_magnitude)[1] 
+                   ),
+                   selectInput(
+                       "other_payment_plans",
+                       label = "Other payment plans",
+                       choices =levels(data$other_payment_plans),
+                       multiple = FALSE,
+                       selected =levels(data$other_payment_plans)[1] 
+                   ),
+                   selectInput(
+                       "housing",
+                       label = "Housing",
+                       choices =levels(data$housing),
+                       multiple = FALSE,
+                       selected =levels(data$housing)[1] 
+                   ),
+                   selectInput(
+                       "own_telephone",
+                       label = "Own Telephone",
+                       choices =levels(data$own_telephone),
+                       multiple = FALSE,
+                       selected =levels(data$own_telephone)[1] 
+                   ),
+                   selectInput(
+                       "foreign_worker",
+                       label = "Foreign worker",
+                       choices =levels(data$foreign_worker),
+                       multiple = FALSE,
+                       selected =levels(data$foreign_worker)[1] 
+                   )),
+            
+                column(width=5,offset = 1,
+                    sliderInput(
+                           'age',
+                           label ='Age',
+                           min=18,
+                           max=99,
+                           value=25
+                       ),
+                    
+                    sliderInput(
+                        'duration',
+                        label ='Duration',
+                        min=min(data$duration),
+                        max=max(data$duration),
+                        value=mean(data$duration) |> round(1) ,
+                        step = 0.1
+                    ),
+                    
+                    sliderInput(
+                        'credit_amount',
+                        label = 'Credit Amount',
+                        min=min(data$credit_amount),
+                        max=max(data$credit_amount),
+                        value=mean(data$credit_amount)
+                    ),
+    
+                   sliderInput(
+                       'num_dependents',
+                       label = "Dependent's number",
+                       min=min(data$num_dependents),
+                       max=max(data$num_dependents),
+                       value=1
+                   ),
+                   
+                   sliderInput(
+                       'residence_since',
+                       label = 'Residence Since',
+                       min=min(data$residence_since),
+                       max=max(data$residence_since),
+                       value=mean(data$residence_since)
+                   ),
+                   sliderInput(
+                       'installment_commitment',
+                       label = 'Installment Commitment',
+                       min=min(data$installment_commitment),
+                       max=max(data$installment_commitment),
+                       value=mean(data$installment_commitment)
+                   ),
+                   selectInput(
+                       'personal_status',
+                       "Personal Status",
+                       choices =levels(data$personal_status) |> sort(),
+                       selected = levels(data$personal_status)[1]
+                   ),
+                   
+                   selectInput(
+                       'purpose',
+                       "Purpose",
+                       choices = levels(data$purpose) |> sort(),
+                       selected = levels(data$purpose)[1]
+                   ),
+                   numericInput(
+                       'existing_credits',
+                       label = 'Existing Credits',
+                       min=min(data$existing_credits),
+                       max=max(data$existing_credits),
+                       value=mean(data$existing_credits) |> round()
+                   )
+                   ),
+            
+            
+            fixedRow(
+                
+                box(align="center",
+                    verbatimTextOutput('pred'), width = 12,collapsible = TRUE,collapsed = TRUE,
+                    title ="Predictions",
+                ),
+        ))))
+            
+            
+        
+    
+
+
+
+
+server <- function(input, output) {
+    output$pred =renderPrint({
+        
+        data_shiny[1, ]=list(input$checking_status ,
+                             input$duration,
+                             input$credit_history  ,
+                             input$purpose,
+                             input$credit_amount,
+                             input$savings_status,
+                             input$employment,
+                             input$installment_commitment,
+                             input$personal_status,
+                             input$other_parties,
+                             input$residence_since,
+                             input$property_magnitude,
+                             input$age,
+                             input$other_payment_plans,
+                             input$housing,
+                             input$existing_credits,
+                             input$job,
+                             input$num_dependents,
+                             input$own_telephone,
+                             input$foreign_worker
+                             
+        )
+        
+        pred = predict(model,data_shiny,type = 'prob') 
+        
+        
+        print(glue('Bad:{round(pred$.pred_bad * 100,2)}% - Good: {round(pred$.pred_good*100,2)}%'))
+    })
+}
+
+shinyApp(ui, server)

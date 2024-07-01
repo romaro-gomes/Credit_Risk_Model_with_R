@@ -1,0 +1,124 @@
+---
+title: "Análise de Risco de Crédito"
+author: "Romario Gomes"
+date: "2024-06-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(  warning=FALSE, message=FALSE, tidy=TRUE,	tidy.opts=list(arrow=TRUE,	indent=2),fig.width = 6, fig.align = 'center', fig.asp=0.618, out.width = '100%')
+```
+
+# Bibliotecas
+```{r}
+library(tidyverse)
+library(here)
+library(glue)
+```
+
+
+
+# Separando os dados em númericos e categoricos
+```{r}
+dados=read_csv(here('data/credit_customers.csv'))
+
+numericos=dados |> select_if(is.numeric)
+
+categoricos=dados |> select_if(is.character) 
+
+for(col in colnames(categoricos)) {
+ dados[[col]] =as.factor(dados[[col]])
+}
+
+
+```
+
+São `r length(numericos)` variavéis numéricas e `r length(categoricos)` variaveís categoricas
+
+# Observando a distribuição das variaveís numéricas
+```{r}
+for(col in seq(colnames(numericos))) {
+  g=ggplot(numericos,aes(x=numericos[[col]])) +
+    geom_histogram( fill='blue') +
+    labs(title=glue('Distribuição da variavel {colnames(numericos[col])} '),
+         x=colnames(numericos[col]),
+         y='frequency')+
+    theme(
+      plot.title = element_text(hjust = 0.5))
+  
+  g |> print()
+  }
+```
+
+
+# A distribuição dos dados numéricos em relação a variavel resposta
+
+```{r}
+for(col in colnames(numericos)) {
+  g=  ggplot(dados,
+             aes(x=dados[[col]],
+                 fill=dados$class)) +
+      geom_histogram() +
+      labs(
+        title=glue(' Distribuição da variavel {col} pela variavel resposta'),
+        x=colnames(numericos[col]),
+        y='frequency') +
+      facet_wrap(class ~.,dir = 'v') +
+      theme(
+      legend.position = 'none',
+      plot.title = element_text(hjust = 0.5)
+        ) 
+  g |> print()
+  
+  }
+```
+
+# Observando a distribuição dos dados categoricos
+```{r}
+for(col in seq(colnames(categoricos))) {
+  g=ggplot(categoricos) +
+    geom_bar(aes(x=categoricos[[col]],
+                 fill=categoricos[[col]])) +
+    labs(x=colnames(categoricos[col]),
+         y='frequency',
+         fill=colnames(categoricos[col]),
+         title=glue('Distribuição da variavel {colnames(categoricos[col])}  em relação a variavel resposta ')) +
+    theme(
+      legend.position = 'none',
+      plot.title = element_text(hjust = 0.5),
+      axis.text.x = element_text(angle = 45,hjust = 1)
+    )
+  g |> print()
+}
+
+
+```
+
+
+# A distribuição dos dados categoricos em relação a variavel resposta
+```{r}
+for(col in seq(colnames(categoricos))) {
+  g=ggplot(categoricos) +
+    geom_bar(aes(x=categoricos[[col]],
+                 fill=categoricos$class),
+             position ='dodge2') +
+    labs(x=colnames(categoricos[col]),
+         y='frequency',
+         fill='class',
+         title=glue('Distribuição da variavel {colnames(categoricos[col])} ')) +
+     theme(
+      plot.title = element_text(hjust = 0.5)
+    )
+  
+  print(g)
+}
+```
+
+
+# Relação entre crédito e idade
+```{r}
+ggplot(dados) +
+  geom_point(aes(age,credit_amount))
+```
+
+Não aparenta haver relação entre idade quantidade de crédito
